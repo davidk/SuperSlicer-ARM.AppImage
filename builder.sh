@@ -21,5 +21,4 @@ fi
 cd superslicer
 podman run -v $PWD:/superslicer:z -it superslicer-builder ./BuildLinux.sh -u && ./BuildLinux.sh -ds 
 
-sed -ie "s@x86_64@${APPIMAGE_ARCH}" build/build_appimage.sh 
-podman run -v $PWD:/superslicer:z -it superslicer-builder ./BuildLinux.sh -u && ./BuildLinux.sh -i
+podman run -v $PWD:/superslicer:z -it superslicer-builder ./BuildLinux.sh -u && sed -i "s@x86_64@${APPIMAGE_ARCH}@g" ./build/build_appimage.sh && ./BuildLinux.sh -i
