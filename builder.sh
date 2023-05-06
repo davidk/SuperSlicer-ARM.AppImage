@@ -19,6 +19,14 @@ if [[ ! -d "superslicer" ]]; then
 fi
 
 cd superslicer
-podman run -v $PWD:/superslicer:z -it superslicer-builder ./BuildLinux.sh -u && ./BuildLinux.sh -ds 
 
-podman run -v $PWD:/superslicer:z -it superslicer-builder ./BuildLinux.sh -u && sed -i "s@x86_64@${APPIMAGE_ARCH}@g" ./build/build_appimage.sh && ./BuildLinux.sh -i
+podman run --device /dev/fuse --cap-add SYS_ADMIN -v $PWD:/superslicer:z -i superslicer-builder sh -- <<EOF 
+./BuildLinux.sh -u 
+./BuildLinux.sh -ds
+
+./BuildLinux.sh -u 
+sed -i "s@x86_64@${APPIMAGE_ARCH}@g" ./build/build_appimage.sh 
+./BuildLinux.sh -i
+EOF
+
+readlink -f ./superslicer/build/SuperSlicer_ubu64.AppImage

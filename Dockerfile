@@ -8,6 +8,6 @@
 # AppImage files should be written to your directory
 FROM docker.io/balenalib/raspberrypi4-64
 
-RUN apt-get update && apt-get install -y wget git jq curl build-essential
+RUN apt-get update && apt-get install -y wget git jq curl build-essential libfuse2 file libcurl4
 
 WORKDIR /superslicer
