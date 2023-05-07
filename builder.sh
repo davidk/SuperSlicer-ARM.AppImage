@@ -20,12 +20,10 @@ fi
 
 cd superslicer
 
-podman run --device /dev/fuse --cap-add SYS_ADMIN -v $PWD:/superslicer:z -i superslicer-builder sh -- <<EOF 
-./BuildLinux.sh -u 
-./BuildLinux.sh -ds
-
-./BuildLinux.sh -u 
-sed -i "s@x86_64@${APPIMAGE_ARCH}@g" ./build/build_appimage.sh 
+podman run --device /dev/fuse --cap-add SYS_ADMIN -v $PWD:/superslicer:z -i superslicer-builder bash -- <<EOF 
+./BuildLinux.sh -u  && \
+./BuildLinux.sh -ds && \
+sed -i "s@x86_64@${APPIMAGE_ARCH}@g" ./build/build_appimage.sh && \
 ./BuildLinux.sh -i
 EOF
 
