@@ -70,7 +70,7 @@ else
 fi
 
 if [[ ! -d "superslicer" ]]; then
-  git clone --depth=1 https://github.com/supermerill/superslicer
+  git clone https://github.com/supermerill/superslicer
 fi
 
 cd superslicer || exit
@@ -83,4 +83,4 @@ sed -i "s@x86_64@${APPIMAGE_ARCH}@g" ./build/build_appimage.sh && \
 ./BuildLinux.sh -i
 EOF
 
-readlink -f ./superslicer/build/SuperSlicer_ubu64.AppImage
+mv "$(readlink -f ./build/SuperSlicer_ubu64.AppImage)" ./build/SuperSlicer_${LATEST_VERSION}-${DPKG_ARCH}.AppImage
