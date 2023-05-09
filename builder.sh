@@ -37,6 +37,10 @@ fi
 
 time ${RUNTIME} build -t superslicer-builder .
 
+# Build superslicer-builder-armhf at the same time
+cp Dockerfile Dockerfile.armhf
+sed -i 's@raspberrypi4-64@raspberrypi3@g' Dockerfile.armhf
+time ${RUNTIME} build -t superslicer-builder-armhf -f Dockerfile.armhf .
 
 # get the latest superslicer version
 LATEST_VERSION="$(curl -SsL ${LATEST_RELEASE} | jq -r 'first | .tag_name')"
@@ -71,16 +75,33 @@ fi
 
 if [[ ! -d "superslicer" ]]; then
   git clone https://github.com/supermerill/superslicer
+  cp -av superslicer superslicer-armhf | sed -e 's/^/armhf copy: /;' &
 fi
 
 cd superslicer || exit
 git checkout "${LATEST_VERSION}"
 
-time ${RUNTIME} run --device /dev/fuse --cap-add SYS_ADMIN -v "${PWD}:/superslicer:z" -i superslicer-builder bash -- <<EOF 
+{ time ${RUNTIME} run --device /dev/fuse --cap-add SYS_ADMIN -v "${PWD}:/superslicer:z" -i superslicer-builder bash -- <<EOF 
 ./BuildLinux.sh -u  && \
 ./BuildLinux.sh -ds && \
 sed -i "s@x86_64@${APPIMAGE_ARCH}@g" ./build/build_appimage.sh && \
 ./BuildLinux.sh -i
 EOF
+} | sed -e 's/^/aarch64: /;' | tee superslicer-aarch64-build.log &
 
-mv "$(readlink -f ./build/SuperSlicer_ubu64.AppImage)" ./build/SuperSlicer_${LATEST_VERSION}-${DPKG_ARCH}.AppImage
+cd ..
+cd superslicer-armhf || exit
+git checkout "${LATEST_VERSION}"
+
+{ time setarch -B linux32 ${RUNTIME} run --device /dev/fuse --cap-add SYS_ADMIN -v "${PWD}:/superslicer:z" -i superslicer-builder-armhf bash -- <<EOF 
+  ./BuildLinux.sh -u  && \
+  ./BuildLinux.sh -ds && \
+  sed -i "s@x86_64@armhf@g" ./build/build_appimage.sh && \
+  ./BuildLinux.sh -i
+EOF
+} | sed -e 's/^/armhf: /;' | tee superslicer-armhf-build.log &
+
+wait
+cd ..
+mv "$(readlink -f superslicer/build/SuperSlicer_ubu64.AppImage)" "superslicer/build/SuperSlicer_${LATEST_VERSION}-aarch64.AppImage"
+mv "$(readlink -f superslicer-armhf/build/SuperSlicer_ubu64.AppImage)" "superslicer-armhf/build/SuperSlicer_${LATEST_VERSION}-armhf.AppImage"
