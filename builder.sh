@@ -47,6 +47,36 @@ else
   exit 1
 fi
 
+# get the latest superslicer version
+LATEST_VERSION="$(curl -SsL ${LATEST_RELEASE} | jq -r 'first | .tag_name')"
+
+if [[ -v AUTO ]]; then
+  REPLY=""
+else
+  read -p "The latest version appears to be: ${LATEST_VERSION} .. Would you like to enter a different version (like a git tag or a commit? Or continue (leave blank)? " -r
+fi
+
+if [[ "${REPLY}" != "" ]]; then
+  echo
+  echo "Version will be set to ${REPLY}"
+  LATEST_VERSION="${REPLY}"
+else
+  echo "Building with version retrieved from the API: ${LATEST_VERSION}"
+fi
+
+if [[ -z "${LATEST_VERSION}" ]]; then
+
+  echo "Could not determine the latest version."
+  echo
+  echo "Possible reasons for this error:"
+  echo "* Has release naming changed from previous conventions?"
+  echo "* Are curl and jq installed and working as expected?"
+  echo "${LATEST_VERSION}"
+  exit 1
+else
+  echo "I'll be building SuperSlicer using ${LATEST_VERSION}"
+fi
+
 # detect container runtime
 if hash podman; then
   echo "Detected Podman container runtime under ${DPKG_ARCH} .."
@@ -70,37 +100,6 @@ if [[ -v BUILD_ARMHF ]]; then
   ${RUNTIME} build -t superslicer-builder-armhf -f Dockerfile.armhf .
 fi
 
-# get the latest superslicer version
-LATEST_VERSION="$(curl -SsL ${LATEST_RELEASE} | jq -r 'first | .tag_name')"
-
-if [[ -v AUTO ]]; then
-  REPLY=""
-else
-  read -p "The latest version appears to be: ${LATEST_VERSION} .. Would you like to enter a different version (like a git tag or a commit? Or continue (leave blank)? " -r
-fi
-
-if [[ "${REPLY}" != "" ]]; then
-  echo
-  echo "Version will be set to ${REPLY}"
-  LATEST_VERSION="${REPLY}"
-else
-  echo
-  echo "Okay, continuing with the version from the API."
-fi
-
-if [[ -z "${LATEST_VERSION}" ]]; then
-
-  echo "Could not determine the latest version."
-  echo
-  echo "Possible reasons for this error:"
-  echo "* Has release naming changed from previous conventions?"
-  echo "* Are curl and jq installed and working as expected?"
-  echo "${LATEST_VERSION}"
-  exit 1
-else
-  echo "I'll be building SuperSlicer using ${LATEST_VERSION}"
-fi
-
 if [[ ! -d "superslicer" ]]; then
   git clone https://github.com/supermerill/superslicer
   if [[ -v BUILD_ARMHF ]]; then
@@ -118,9 +117,8 @@ git checkout "${LATEST_VERSION}"
 ./BuildLinux.sh -ds && \
 sed -i "s@x86_64@${APPIMAGE_ARCH}@g" ./build/build_appimage.sh && \
 ./BuildLinux.sh -i && \
-mv "$(readlink -f superslicer-armhf/build/SuperSlicer_ubu64.AppImage)" "superslicer-armhf/build/SuperSlicer_${LATEST_VERSION}-armhf.AppImage"
 EOF
-} |& sed -e 's/^/aarch64: /;' |& tee superslicer-aarch64-build.log &
+} |& sed -e 's/^/aarch64> /;' |& tee superslicer-aarch64-build.log &
 
 cd ..
 
@@ -136,13 +134,12 @@ git checkout "${LATEST_VERSION}"
 ./BuildLinux.sh -ds && \
 sed -i "s@x86_64@armhf@g" ./build/build_appimage.sh && \
 ./BuildLinux.sh -i && \
-mv "$(readlink -f /superslicer/build/SuperSlicer_ubu64.AppImage)" "/superslicer/build/SuperSlicer_${LATEST_VERSION}-aarch64.AppImage"
 EOF
-} |& sed -e 's/^/armhf: /;' |& tee superslicer-armhf-build.log &
+} |& sed -e 's/^/armhf> /;' |& tee superslicer-armhf-build.log &
 
 cd ..
 
 fi
 
-wait
+wait %1 %2 2>/dev/null
 
