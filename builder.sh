@@ -6,10 +6,6 @@ if [[ -v $STY ]] || [[ -z $STY ]]; then
   echo -e '\033[1;36m**** The SuperSlicer build process can take a long time. Screen or an alternative is advised for long-running terminal sessions. ****\033[0m'
 fi
 
-if [[ $1 == "automated" ]]; then
-  AUTO="yes"
-fi
-
 BUILD_AARCH64=""
 BUILD_ARMHF=""
 
@@ -28,10 +24,15 @@ case $1 in
     BUILD_ARMHF="yes"
   ;;
   *)
-    echo "Options: [aarch64 | armhf | all]"
+    echo "Options: [ aarch64 | armhf | all ] [ automated ]"
+    echo "Example: $0 aarch64 automated"
     exit 1
   ;;
 esac
+
+if [[ $2 == "automated" ]]; then
+  AUTO="yes"
+fi
 
 # detect platform architecture
 DPKG_ARCH="$(dpkg --print-architecture)"
