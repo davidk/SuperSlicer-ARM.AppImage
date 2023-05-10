@@ -21,6 +21,7 @@ patchelf \
 desktop-file-utils \
 fuse \
 m4 \
-squashfs-tools
+squashfs-tools \
+libtbb-dev
 
 WORKDIR /superslicer
