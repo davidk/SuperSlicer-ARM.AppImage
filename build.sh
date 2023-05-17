@@ -112,11 +112,11 @@ if [[ -v BUILD_AARCH64 ]]; then
 cd superslicer || exit
 git checkout "${LATEST_VERSION}"
 
-{ time ${RUNTIME} run --device /dev/fuse --cap-add SYS_ADMIN -v "${PWD}:/superslicer:z" -i superslicer-builder bash -- <<EOF 
+{ time ${RUNTIME} run --device /dev/fuse --cap-add SYS_ADMIN -v "${PWD}:/superslicer:z" -i superslicer-builder bash -- <<EOF
 ./BuildLinux.sh -u  && \
 ./BuildLinux.sh -ds && \
 sed -i "s@x86_64@${APPIMAGE_ARCH}@g" ./build/build_appimage.sh && \
-./BuildLinux.sh -i && \
+./BuildLinux.sh -i
 EOF
 } |& sed -e 's/^/aarch64> /;' |& tee superslicer-aarch64-build.log &
 
@@ -129,11 +129,11 @@ if [[ -v BUILD_ARMHF ]]; then
 cd superslicer-armhf || exit
 git checkout "${LATEST_VERSION}"
 
-{ time setarch -B linux32 ${RUNTIME} run --device /dev/fuse --cap-add SYS_ADMIN -v "${PWD}:/superslicer:z" -i superslicer-builder-armhf bash -- <<EOF 
+{ time setarch -B linux32 ${RUNTIME} run --device /dev/fuse --cap-add SYS_ADMIN -v "${PWD}:/superslicer:z" -i superslicer-builder-armhf bash -- <<EOF
 ./BuildLinux.sh -u  && \
 ./BuildLinux.sh -ds && \
 sed -i "s@x86_64@armhf@g" ./build/build_appimage.sh && \
-./BuildLinux.sh -i && \
+./BuildLinux.sh -i
 EOF
 } |& sed -e 's/^/armhf> /;' |& tee superslicer-armhf-build.log &
 
