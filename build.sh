@@ -102,9 +102,7 @@ fi
 
 if [[ ! -d "superslicer" ]]; then
   git clone https://github.com/supermerill/superslicer
-  if [[ -v BUILD_ARMHF ]]; then
-    cp -av superslicer superslicer-armhf | sed -e 's/^/armhf copy: /;' &
-  fi
+
 fi
 
 if [[ -v BUILD_AARCH64 ]]; then
@@ -125,6 +123,10 @@ cd ..
 fi
 
 if [[ -v BUILD_ARMHF ]]; then
+
+if [[ ! -d "superslicer-armhf" ]]; then
+  git clone https://github.com/supermerill/superslicer superslicer-armhf
+fi
 
 cd superslicer-armhf || exit
 git checkout "${LATEST_VERSION}"
