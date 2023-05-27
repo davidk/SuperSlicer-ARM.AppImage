@@ -143,5 +143,5 @@ cd ..
 
 fi
 
-wait %1 %2 2>/dev/null
-
+jobs
+wait
