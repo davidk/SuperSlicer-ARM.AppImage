@@ -26,6 +26,13 @@ case $1 in
   *)
     echo "Options: [ aarch64 | armhf | all ] [ automated ]"
     echo "Example: $0 aarch64 automated"
+    echo "Example: This builds the latest release of SuperSlicer for aarch64"
+    echo
+    echo "Example 2: $0 all automated"
+    echo "Example 2: This builds the latest release of SuperSlicer for aarch64 and armhf"
+    echo
+    echo "Example 3: $0 all"
+    echo "Example 3: Builds a specified release of SuperSlicer for aarch64 and armhf"
     exit 1
   ;;
 esac
